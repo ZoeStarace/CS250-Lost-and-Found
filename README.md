@@ -24,19 +24,27 @@ Basic AI compares search descriptions with database entries to suggest potential
 
 # User Interface
 Home Page: Navigation to Search or Report an item
+
 Search Page: Recently reported items and search filters
+
 Report Page: Form to submit item details and images
+
 Dashboard: Manage reports, search items, and access messages
 
 # Technologies (Planned)
 Frontend: HTML, CSS, JavaScript (or React)
+
 Backend: Node.js/Express (or similar framework)
+
 Database: MongoDB/Firebase/SQL
+
 AI Matching: Text similarity/NLP techniques
+
 Maps Integration: Google Maps API (optional)
 
 # Future Improvements
 Notifications for potential matches
+
 Mobile-friendly design
 
 Admin verification/moderation tools
