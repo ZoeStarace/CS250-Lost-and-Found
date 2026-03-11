@@ -1,16 +1,52 @@
-# React + Vite
+# CS250---Campus-Wide-Lost-and-Found-System
+Overview
+The Lost and Found Reporting System is a web-based application that allows users to report lost items, search for found items, and communicate with others to recover belongings. The project demonstrates full-stack development, database integration, and basic AI-assisted matching.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Features
+Reporting:
+Users can report lost or found items with descriptions, images, and location details.
 
-Currently, two official plugins are available:
+Search:
+Searchable database of reported items with filters (type, color, keywords, date, location).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Recently reported items are displayed on the search page.
 
-## React Compiler
+Messaging:
+Built-in chat system allowing users to contact the person who reported or found an item.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+User Accounts:
+Login/signup system with a personal dashboard.
 
-## Expanding the ESLint configuration
+Users can manage reports and messages.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+AI Matching:
+Basic AI compares search descriptions with database entries to suggest potential matches.
+
+# User Interface
+Home Page: Navigation to Search or Report an item
+
+Search Page: Recently reported items and search filters
+
+Report Page: Form to submit item details and images
+
+Dashboard: Manage reports, search items, and access messages
+
+# Technologies (Planned)
+Frontend: HTML, CSS, JavaScript (or React)
+
+Backend: Node.js/Express (or similar framework)
+
+Database: MongoDB/Firebase/SQL
+
+AI Matching: Text similarity/NLP techniques
+
+Maps Integration: Google Maps API (optional)
+
+# Future Improvements
+Notifications for potential matches
+
+Mobile-friendly design
+
+Admin verification/moderation tools
+
+Designated drop-off locations
