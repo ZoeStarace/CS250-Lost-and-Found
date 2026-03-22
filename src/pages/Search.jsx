@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
+import "./search.css";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE_URL = "http://127.0.0.1:8000";                                                                                   
 
 export default function Search() {
   const [filters, setFilters] = useState({
-    q: "",
+     q: "",
     category: "",
     color: "",
     location: "",
+    room_num: "",
     status: "",
     date: "",
   });
@@ -15,93 +17,95 @@ export default function Search() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
 
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value.trim()) params.append(key, value.trim());
-    });
+  async function handleSearch(e) {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+  setHasSearched(true);
 
-    return params.toString();
-  }, [filters]);
+  try {
+      const params = new URLSearchParams();
 
-  async function fetchItems() {
-    setLoading(true);
-    setError("");
+      if (filters.q.trim()) params.append("q", filters.q.trim());
+      if (filters.category.trim()) params.append("category", filters.category.trim());
+      if (filters.color.trim()) params.append("color", filters.color.trim());
+      if (filters.location.trim()) params.append("location", filters.location.trim());
+      if (filters.room_num.trim()) params.append("room_num", filters.room_num.trim());
+      if (filters.status.trim()) params.append("status", filters.status.trim());
+      if (filters.date.trim()) params.append("date", filters.date.trim());
 
-    try {
-      const res = await fetch(`${API_BASE}/api/items/search?${queryString}`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch search results.");
+      const response = await fetch(`${API_BASE_URL}/api/items/search?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch search results");
       }
 
-      const data = await res.json();
+       const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       setItems(data);
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setError(err.message || "Something went wrong");
+      setItems([]);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    fetchItems();
-  }
-
-  function handleReset() {
+ function handleReset() {
     setFilters({
       q: "",
       category: "",
       color: "",
       location: "",
+      room_num: "",
       status: "",
       date: "",
     });
+    setItems([]);
+    setError("");
+    setHasSearched(false);
   }
 
-  return (
-    <div style={{ padding: "2rem", maxWidth: "1100px", margin: "0 auto" }}>
-      <h1>Search Items</h1>
-      <p>Search reported lost and found items using filters.</p>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
+  return (
+    <div className="search-container">
+      <form className="search-form" onSubmit={handleSearch}>
+        <h1 className="search-title">Search Reported Items</h1>
+
         <input
+          className="search-input"
           type="text"
           name="q"
-          placeholder="Keyword"
+          placeholder="Search by name or description"
           value={filters.q}
           onChange={handleChange}
         />
 
-        <select name="category" value={filters.category} onChange={handleChange}>
-          <option value="">All categories</option>
-          <option value="electronics">Electronics</option>
-          <option value="clothing">Clothing</option>
-          <option value="documents">Documents</option>
-          <option value="accessories">Accessories</option>
-          <option value="other">Other</option>
-        </select>
+        <input
+          className="search-input"
+          type="text"
+          name="category"
+          placeholder="Category"
+          value={filters.category}
+          onChange={handleChange}
+        />
 
         <input
+          className="search-input"
           type="text"
           name="color"
           placeholder="Color"
@@ -110,6 +114,7 @@ export default function Search() {
         />
 
         <input
+          className="search-input"
           type="text"
           name="location"
           placeholder="Location"
@@ -117,59 +122,70 @@ export default function Search() {
           onChange={handleChange}
         />
 
-        <select name="status" value={filters.status} onChange={handleChange}>
-          <option value="">All statuses</option>
-          <option value="lost">Lost</option>
-          <option value="found">Found</option>
-          <option value="claimed">Claimed</option>
-        </select>
+        <input
+          className="search-input"
+          type="text"
+          name="room_num"
+          placeholder="Room Number"
+          value={filters.room_num}
+          onChange={handleChange}
+        />
 
         <input
+          className="search-input"
+          type="text"
+          name="status"
+          placeholder="Status (Found / Not Found)"
+          value={filters.status}
+          onChange={handleChange}
+        />
+
+        <input
+          className="search-input"
           type="date"
           name="date"
           value={filters.date}
           onChange={handleChange}
         />
 
-        <div style={{ display: "flex", gap: "0.75rem" }}>
-          <button type="submit">Search</button>
-          <button type="button" onClick={handleReset}>
+        <div className="search-button-row">
+          <button className="search-button" type="submit">
+            Search
+          </button>
+          <button className="search-button reset-button" type="button" onClick={handleReset}>
             Reset
           </button>
         </div>
       </form>
 
-      {loading && <p>Loading results...</p>}
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+        <div className="search-results">
+        {loading && <p>Loading...</p>}
+        {error && <p className="search-error">{error}</p>}
 
-      {!loading && !error && (
-        <div style={{ display: "grid", gap: "1rem" }}>
-          {items.length === 0 ? (
-            <p>No items found.</p>
-          ) : (
-            items.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "12px",
-                  padding: "1rem",
-                  background: "#fff",
-                  color: "#222",
-                }}
-              >
-                <h3 style={{ marginTop: 0 }}>{item.title}</h3>
-                <p><strong>Description:</strong> {item.description || "N/A"}</p>
-                <p><strong>Category:</strong> {item.category || "N/A"}</p>
-                <p><strong>Color:</strong> {item.color || "N/A"}</p>
-                <p><strong>Location:</strong> {item.location_found || "N/A"}</p>
-                <p><strong>Status:</strong> {item.status || "N/A"}</p>
-                <p><strong>Date:</strong> {item.date_reported || "N/A"}</p>
-              </div>
-            ))
-          )}
-        </div>
-      )}
+        {!loading && !error && hasSearched && items.length === 0 && (
+          <p>No matching items found.</p>
+        )}
+
+        {!loading &&
+          !error &&
+          items.map((item) => (
+            <div className="search-card" key={item.id}>
+              <h2>{item.name || "Unnamed Item"}</h2>
+              <p><strong>Description:</strong> {item.description || "N/A"}</p>
+              <p><strong>Category:</strong> {item.category || "N/A"}</p>
+              <p><strong>Color:</strong> {item.color || "N/A"}</p>
+              <p><strong>Location:</strong> {item.location || "N/A"}</p>
+              <p><strong>Room Number:</strong> {item.room_num || "N/A"}</p>
+              <p><strong>Status:</strong> {item.status || "N/A"}</p>
+              <p>
+                <strong>Date Reported:</strong>{" "}
+                {item.reportedAt
+                  ? new Date(item.reportedAt).toLocaleDateString()
+                  : "N/A"}
+              </p>
+            </div>
+          ))}
+      </div>
     </div>
   );
 }
