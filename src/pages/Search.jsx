@@ -1,20 +1,23 @@
 import { useState } from "react";
-import ".search.css";
+import "./search.css";
 
-                                                                                   
+const API_BASE_URL = "http://127.0.0.1:8000";                                                                                   
 
 export default function Search() {
   const [filters, setFilters] = useState({
-    q: "",
+     q: "",
     category: "",
     color: "",
-     location: "",
+    location: "",
     room_num: "",
+    status: "",
+    date: "",
   });
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -25,11 +28,12 @@ export default function Search() {
   }
 
   async function handleSearch(e) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+  setHasSearched(true);
 
-    try {
+  try {
       const params = new URLSearchParams();
 
       if (filters.q.trim()) params.append("q", filters.q.trim());
@@ -37,33 +41,45 @@ export default function Search() {
       if (filters.color.trim()) params.append("color", filters.color.trim());
       if (filters.location.trim()) params.append("location", filters.location.trim());
       if (filters.room_num.trim()) params.append("room_num", filters.room_num.trim());
+      if (filters.status.trim()) params.append("status", filters.status.trim());
+      if (filters.date.trim()) params.append("date", filters.date.trim());
 
-      const response = await fetch(`/api/items/search?${params.toString()}`);
+      const response = await fetch(`${API_BASE_URL}/api/items/search?${params.toString()}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch search results");
       }
 
-      const data = await response.json();
+       const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       setItems(data);
     } catch (err) {
       setError(err.message || "Something went wrong");
+      setItems([]);
     } finally {
       setLoading(false);
     }
   }
 
-  function handleReset() {
+ function handleReset() {
     setFilters({
       q: "",
       category: "",
       color: "",
       location: "",
       room_num: "",
+      status: "",
+      date: "",
     });
     setItems([]);
     setError("");
+    setHasSearched(false);
   }
+
 
   return (
     <div className="search-container">
@@ -115,6 +131,23 @@ export default function Search() {
           onChange={handleChange}
         />
 
+        <input
+          className="search-input"
+          type="text"
+          name="status"
+          placeholder="Status (Found / Not Found)"
+          value={filters.status}
+          onChange={handleChange}
+        />
+
+        <input
+          className="search-input"
+          type="date"
+          name="date"
+          value={filters.date}
+          onChange={handleChange}
+        />
+
         <div className="search-button-row">
           <button className="search-button" type="submit">
             Search
@@ -125,11 +158,11 @@ export default function Search() {
         </div>
       </form>
 
-      <div className="search-results">
+        <div className="search-results">
         {loading && <p>Loading...</p>}
         {error && <p className="search-error">{error}</p>}
 
-        {!loading && !error && items.length === 0 && (
+        {!loading && !error && hasSearched && items.length === 0 && (
           <p>No matching items found.</p>
         )}
 
@@ -143,6 +176,13 @@ export default function Search() {
               <p><strong>Color:</strong> {item.color || "N/A"}</p>
               <p><strong>Location:</strong> {item.location || "N/A"}</p>
               <p><strong>Room Number:</strong> {item.room_num || "N/A"}</p>
+              <p><strong>Status:</strong> {item.status || "N/A"}</p>
+              <p>
+                <strong>Date Reported:</strong>{" "}
+                {item.reportedAt
+                  ? new Date(item.reportedAt).toLocaleDateString()
+                  : "N/A"}
+              </p>
             </div>
           ))}
       </div>
