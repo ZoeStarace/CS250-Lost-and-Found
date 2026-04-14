@@ -8,14 +8,14 @@ import { createRequire } from "module";
 import { FieldValue } from "firebase-admin/firestore";
 
 const require = createRequire(import.meta.url);
-const credientials = require("/Users/munewerkiar/Desktop/App_Dev/credentials/serviceAccount.json");
+const credentials = require("./serviceAccountKey.json");
 dotenv.config();
 
 const app = express();
 const port = 3000;
 
 admin.initializeApp({
-  credential: admin.credential.cert(credientials),
+  credential: admin.credential.cert(credentials),
 });
 
 const db = admin.firestore();
@@ -110,6 +110,78 @@ app.post("/api/user/add-item", async (req, res) => {
     console.log("Error adding item to user: ", error);
     res.status(401).json({ message: "Unauthorized" });
     return;
+  }
+});
+
+app.get("/api/search", async (req, res) => {
+  console.log("SEARCH ROUTE HIT", req.query);
+
+  const q = (req.query.q || "").toLowerCase().trim();
+  const category = (req.query.category || "").toLowerCase().trim();
+  const color = (req.query.color || "").toLowerCase().trim();
+  const location = (req.query.location || "").toLowerCase().trim();
+  const status = (req.query.status || "").toLowerCase().trim();
+  const date = (req.query.date || "").trim();
+
+  try {
+    const snapshot = await db.collection("items").get();
+    console.log("Number of docs:", snapshot.size);
+
+    const results = snapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+        };
+      })
+      .filter((item) => {
+        const itemName = String(item.name || "").toLowerCase();
+        const itemDescription = String(item.description || "").toLowerCase();
+        const itemCategory = String(item.category || "").toLowerCase();
+        const itemColor = String(item.color || "").toLowerCase();
+        const itemLocation = String(item.location || "").toLowerCase();
+        const itemStatus = String(item.status || "").toLowerCase();
+
+        let itemDate = "";
+        if (item.reportedAt) {
+          const parsedDate = new Date(item.reportedAt);
+          if (!isNaN(parsedDate.getTime())) {
+            itemDate = parsedDate.toISOString().split("T")[0];
+          }
+        }
+
+        const matchesQ =
+          !q ||
+          itemName.includes(q) ||
+          itemDescription.includes(q) ||
+          itemCategory.includes(q) ||
+          itemColor.includes(q) ||
+          itemLocation.includes(q);
+
+        const matchesCategory = !category || itemCategory === category;
+        const matchesColor = !color || itemColor.includes(color);
+        const matchesLocation = !location || itemLocation.includes(location);
+        const matchesStatus = !status || itemStatus === status;
+        const matchesDate = !date || itemDate === date;
+
+        return (
+          matchesQ &&
+          matchesCategory &&
+          matchesColor &&
+          matchesLocation &&
+          matchesStatus &&
+          matchesDate
+        );
+      });
+
+    console.log("Search results count:", results.length);
+    res.status(200).json(results);
+  } catch (error) {
+    console.log("Error searching items:", error);
+    console.log("Error message:", error.message);
+    console.log("Error stack:", error.stack);
+    res.status(500).json({ message: "Search failed", error: error.message });
   }
 });
 

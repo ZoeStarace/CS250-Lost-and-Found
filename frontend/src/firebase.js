@@ -11,12 +11,13 @@ import {
 import axios from "axios";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_APIKEY,
-  authDomain: import.meta.env.VITE_AUTHDOMAIN,
-  projectId: import.meta.env.VITE_PROJECTID,
-  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
-  appId: import.meta.env.VITE_APPID,
+  apiKey: "AIzaSyBUAYJNZUBvCC32McV0iaVBFlhwCE5eWbo",
+  authDomain: "test-db921.firebaseapp.com",
+  projectId: "test-db921",
+  storageBucket: "test-db921.firebasestorage.app",
+  messagingSenderId: "947670240958",
+  appId: "1:947670240958:web:146884e3a7ab09449598ef",
+  measurementId: "G-ZJ345Y4S7X"
 };
 
 const webApp = initializeApp(firebaseConfig);

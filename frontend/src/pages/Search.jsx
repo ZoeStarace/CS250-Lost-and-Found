@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 
-const API_BASE = "http://localhost:8000";
-
 export default function Search() {
   const [filters, setFilters] = useState({
     q: "",
@@ -31,8 +29,7 @@ export default function Search() {
     setError("");
 
     try {
-      const res = await fetch(`${API_BASE}/api/items/search?${queryString}`);
-      if (!res.ok) {
+        const res = await fetch(`http://localhost:3000/api/search?${queryString}`);      if (!res.ok) {
         throw new Error("Failed to fetch search results.");
       }
 
@@ -60,18 +57,35 @@ export default function Search() {
   }
 
   function handleReset() {
-    setFilters({
+    const resetFilters = {
       q: "",
       category: "",
       color: "",
       location: "",
       status: "",
       date: "",
-    });
+    };
+
+    setFilters(resetFilters);
+    setItems([]);
+    setError("");
+  }
+
+  function formatReportedDate(timestamp) {
+    if (!timestamp) return "N/A";
+    return new Date(timestamp).toLocaleDateString();
   }
 
   return (
-    <div style={{ padding: "2rem", margin: "0 auto", backgroundColor: "#a6192e", height: "85vh", color: "#000000" }}>
+    <div
+      style={{
+        padding: "2rem",
+        margin: "0 auto",
+        backgroundColor: "#a6192e",
+        minHeight: "85vh",
+        color: "#000000",
+      }}
+    >
       <h1>Search Items</h1>
       <p>Search reported lost and found items using filters.</p>
 
@@ -123,9 +137,9 @@ export default function Search() {
 
         <select name="status" value={filters.status} onChange={handleChange}>
           <option value="">All statuses</option>
-          <option value="lost">Lost</option>
-          <option value="found">Found</option>
-          <option value="claimed">Claimed</option>
+          <option value="Not Found">Not Found</option>
+          <option value="Found">Found</option>
+          <option value="Claimed">Claimed</option>
         </select>
 
         <input
@@ -162,7 +176,7 @@ export default function Search() {
                   color: "#222",
                 }}
               >
-                <h3 style={{ marginTop: 0 }}>{item.title}</h3>
+                <h3 style={{ marginTop: 0 }}>{item.name || "Unnamed Item"}</h3>
                 <p>
                   <strong>Description:</strong> {item.description || "N/A"}
                 </p>
@@ -173,13 +187,16 @@ export default function Search() {
                   <strong>Color:</strong> {item.color || "N/A"}
                 </p>
                 <p>
-                  <strong>Location:</strong> {item.location_found || "N/A"}
+                  <strong>Location:</strong> {item.location || "N/A"}
+                </p>
+                <p>
+                  <strong>Room:</strong> {item.room_num || "N/A"}
                 </p>
                 <p>
                   <strong>Status:</strong> {item.status || "N/A"}
                 </p>
                 <p>
-                  <strong>Date:</strong> {item.date_reported || "N/A"}
+                  <strong>Date:</strong> {formatReportedDate(item.reportedAt)}
                 </p>
               </div>
             ))
