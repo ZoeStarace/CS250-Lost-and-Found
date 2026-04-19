@@ -4,38 +4,82 @@ import { UserContext } from "../userState.jsx";
 import { signout } from "../firebase.js";
 
 export default function Layout({ children }) {
-  const { loginState, setLoginState } = useContext(UserContext);
+  const { loginState } = useContext(UserContext);
+
   return (
     <div>
       <nav
         style={{
-          padding: "12px 20px",
-          borderBottom: "1px solid #ccc",
+          padding: "16px 28px",
+          borderBottom: "1px solid #d9d9d9",
           display: "flex",
-          gap: 20,
+          alignItems: "center",
+          gap: "24px",
+          backgroundColor: "#ffffff",
         }}
       >
-        <Link to="/">Home</Link>
-        <Link to="/search">Search</Link>
-        {loginState ? (
-          <>
-            <Link to="/report">Report</Link>
-            <Link to="/dashboard">Dashboard</Link>
-          </>
-        ) : (
-          ""
+        <div
+          style={{
+            fontWeight: "700",
+            fontSize: "1.2rem",
+            color: "#a6192e",
+            marginRight: "12px",
+          }}
+        >
+          SDSU Lost & Found
+        </div>
+
+        <Link to="/" style={{ textDecoration: "none", color: "#1f1f1f" }}>
+          Home
+        </Link>
+
+        <Link
+          to="/search"
+          style={{ textDecoration: "none", color: "#1f1f1f" }}
+        >
+          Search
+        </Link>
+
+        {loginState && (
+          <Link
+            to="/report"
+            style={{ textDecoration: "none", color: "#1f1f1f" }}
+          >
+            Report
+          </Link>
         )}
+
         <div style={{ marginLeft: "auto" }}></div>
+
         {loginState ? (
-          <>
-            <label className="signout-label" onClick={signout}>
-              Sign Out
-            </label>
-          </>
+          <button
+            onClick={signout}
+            style={{
+              backgroundColor: "#a6192e",
+              color: "#ffffff",
+              border: "none",
+              padding: "10px 18px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "600",
+            }}
+          >
+            Sign Out
+          </button>
         ) : (
-          <>
-            <Link to="/login">Login</Link>
-          </>
+          <Link
+            to="/login"
+            style={{
+              textDecoration: "none",
+              color: "#ffffff",
+              backgroundColor: "#a6192e",
+              padding: "10px 18px",
+              borderRadius: "6px",
+              fontWeight: "600",
+            }}
+          >
+            Login
+          </Link>
         )}
       </nav>
 

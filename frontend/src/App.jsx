@@ -3,7 +3,6 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Report from "./pages/Report";
-import Dashboard from "./pages/Dashboard";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import { useState, useEffect } from "react";
@@ -15,14 +14,16 @@ export default function App() {
   const [loginState, setLoginState] = useState(null);
 
   useEffect(() => {
-    onAuthStateChanged(clientAuth, async (user) => {
+    const unsubscribe = onAuthStateChanged(clientAuth, async (user) => {
       if (user) {
         setLoginState(true);
       } else {
         setLoginState(false);
       }
     });
-  });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <UserContext.Provider value={{ loginState, setLoginState }}>
@@ -33,10 +34,6 @@ export default function App() {
           <Route
             path="/report"
             element={loginState ? <Report /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/dashboard"
-            element={loginState ? <Dashboard /> : <Navigate to="/login" />}
           />
           <Route
             path="/signup"

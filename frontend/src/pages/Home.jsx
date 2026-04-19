@@ -1,127 +1,174 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 export default function Home() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState(location.state?.message || "");
 
-    return (
-        <div style={{ maxWidth: "1000px", margin: "0 auto", backgroundColor: "#a6192e" }}>
-            <section style={{
-                textAlign: "center",
-                padding: "60px 20px",
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+        window.history.replaceState({}, document.title);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
+
+  const tileStyle = {
+    backgroundColor: "#a6192e",
+    color: "#ffffff",
+    border: "none",
+    padding: "28px 24px",
+    minHeight: "120px",
+    borderRadius: "0",
+    fontSize: "1.3rem",
+    fontWeight: "700",
+    cursor: "pointer",
+    textAlign: "left",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+  };
+
+  return (
+    <div style={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+      <section
+        style={{
+          backgroundColor: "#a6192e",
+          color: "#ffffff",
+          padding: "72px 24px 64px",
+          textAlign: "center",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "3.2rem",
+            marginBottom: "16px",
+            fontWeight: "700",
+          }}
+        >
+          SDSU Lost & Found
+        </h1>
+
+        <p
+          style={{
+            fontSize: "1.15rem",
+            maxWidth: "760px",
+            margin: "0 auto",
+            lineHeight: "1.7",
+          }}
+        >
+          Report lost or found items on campus, search the item database, and
+          help connect SDSU students and staff with their belongings.
+        </p>
+      </section>
+
+      <section
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "48px 24px",
+        }}
+      >
+        {successMessage && (
+          <div
+            style={{
+              backgroundColor: "#e8f5e9",
+              color: "#1b5e20",
+              border: "1px solid #c8e6c9",
+              padding: "16px 20px",
+              marginBottom: "28px",
+              borderRadius: "8px",
+              fontWeight: "600",
             }}
-            >
-                <h1 style={{ fontSize: "3rem", marginBottom: "16px", color: "black"}}>
-                    Lost and Found System
-                </h1>
+          >
+            {successMessage}
+          </div>
+        )}
 
-                <p style={{
-                    fontSize: "1.1rem",
-                    maxWidth: "700px",
-                    margin: "0 auto 24px",
-                    lineHeight: "1.6",
-                }}
-                >
-                    Report lost items across SDSU and connect with those looking to recover them
-                </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "24px",
+            marginBottom: "56px",
+          }}
+        >
+          <button style={tileStyle} onClick={() => navigate("/search")}>
+            Search Items
+          </button>
 
-                <div style={{ display: "flex", justifyContent: "center", gap: "16px"}}>
-                    <button
-                        onClick={() => navigate("/search")}
-                        style={{
-                            padding: "12px 24px",
-                            fontSize: "1rem",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Search Items
-                    </button>
+          <button style={tileStyle} onClick={() => navigate("/report")}>
+            Report an Item
+          </button>
 
-                    <button
-                        onClick={() => navigate("/report")}
-                        style={{
-                            padding: "12px 24px",
-                            fontSize: "1rem",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Report an Item
-                    </button>
-                </div>
-            </section>
+          <button style={tileStyle} onClick={() => navigate("/login")}>
+            Login / Account
+          </button>
 
-            <div style={{ padding: "20px"}}>
-                <h2 style={{marginBottom: "20px", textAlign: "center", color: "#000000"}}>
-                    How It Works
-                </h2>
-                <section style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                    gap: "20px",
-                }}
-                >
-                    <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                        gap: "20px",
-                        color: "#000000"
-                    }}
-                    >
-                        <div style={{
-                            border: "1px solid #000000",
-                            padding: "20px",
-                            borderRadius: "8px",
-                        }}
-                        >
-                            <h3>Report</h3>
-                            <p>
-                                Submit information about a lost or found item, including a description, category, and location
-                            </p>
-                        </div>
-                        <div style={{
-                            border: "1px solid #000000",
-                            padding: "20px",
-                            borderRadius: "8px",
-                        }}
-                        >
-                            <h3>Search</h3>
-                            <p>
-                                Search for items using filters and descriptions
-                            </p>
-                        </div>
-                        <div style={{
-                            border: "1px solid #000000",
-                            padding: "20px",
-                            borderRadius: "8px",
-                        }}
-                        >
-                            <h3>Connect</h3>
-                            <p>
-                                Contact the person who reported or found the item to arrange a return.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                <section style={{padding: "40px 20px"}}>
-                    <h2 style={{marginBottom: "20px", textAlign: "center", color: "#000000"}}>
-                        Key Features
-                    </h2>
-
-                    <ul style={{
-                        maxWidth: "700px",
-                        margin: "0 auto",
-                        lineHeight: "1.8",
-                        fontSize: "1rem",
-                        color: "#000000"
-                    }}
-                    >
-                        <li>Lost and found item reporting</li>
-                        <li>Search with filters and item descriptions</li>
-                        <li>User dashboard for managing reports</li>
-                        <li>Messaging system for communication</li>
-                        <li>AI-assisted item matching</li>
-                    </ul>
-                </section>
-            </div>
+          <button
+            style={tileStyle}
+            onClick={() =>
+              window.open("https://library2.sdsu.edu/wayfinder/", "_blank")
+            }
+          >
+            SDSU Map
+          </button>
         </div>
-    );
+
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            padding: "36px",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+            marginBottom: "32px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "2rem",
+              marginBottom: "20px",
+              color: "#1f1f1f",
+            }}
+          >
+            How It Works
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            <div>
+              <h3 style={{ color: "#a6192e" }}>1. Report</h3>
+              <p style={{ color: "#333333", lineHeight: "1.7" }}>
+                Submit details about a lost or found item, including description,
+                category, color, and location.
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{ color: "#a6192e" }}>2. Search</h3>
+              <p style={{ color: "#333333", lineHeight: "1.7" }}>
+                Search the database using keywords and filters to find possible
+                matches.
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{ color: "#a6192e" }}>3. Recover</h3>
+              <p style={{ color: "#333333", lineHeight: "1.7" }}>
+                Use the system to identify matching items and recover your lost item.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }

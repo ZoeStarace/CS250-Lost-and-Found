@@ -1,3 +1,4 @@
+import "./Search.css";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Search() {
@@ -77,132 +78,86 @@ export default function Search() {
   }
 
   return (
-    <div
-      style={{
-        padding: "2rem",
-        margin: "0 auto",
-        backgroundColor: "#a6192e",
-        minHeight: "85vh",
-        color: "#000000",
-      }}
-    >
-      <h1>Search Items</h1>
-      <p>Search reported lost and found items using filters.</p>
+    <div className="search-container">
+      <div className="search-box">
+        <h1 className="search-title">Search Items</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <input
-          type="text"
-          name="q"
-          placeholder="Keyword"
-          value={filters.q}
-          onChange={handleChange}
-        />
+        <form onSubmit={handleSubmit} className="search-form">
+          <input
+            type="text"
+            name="q"
+            placeholder="Keyword"
+            value={filters.q}
+            onChange={handleChange}
+          />
 
-        <select
-          name="category"
-          value={filters.category}
-          onChange={handleChange}
-        >
-          <option value="">All categories</option>
-          <option value="electronics">Electronics</option>
-          <option value="clothing">Clothing</option>
-          <option value="documents">Documents</option>
-          <option value="accessories">Accessories</option>
-          <option value="other">Other</option>
-        </select>
+          <select name="category" value={filters.category} onChange={handleChange}>
+            <option value="">All categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="documents">Documents</option>
+            <option value="accessories">Accessories</option>
+            <option value="other">Other</option>
+          </select>
 
-        <input
-          type="text"
-          name="color"
-          placeholder="Color"
-          value={filters.color}
-          onChange={handleChange}
-        />
+          <input
+            type="text"
+            name="color"
+            placeholder="Color"
+            value={filters.color}
+            onChange={handleChange}
+          />
 
-        <input
-          type="text"
-          name="location"
-          placeholder="Location"
-          value={filters.location}
-          onChange={handleChange}
-        />
+          <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            value={filters.location}
+            onChange={handleChange}
+          />
 
-        <select name="status" value={filters.status} onChange={handleChange}>
-          <option value="">All statuses</option>
-          <option value="Not Found">Not Found</option>
-          <option value="Found">Found</option>
-          <option value="Claimed">Claimed</option>
-        </select>
+          <select name="status" value={filters.status} onChange={handleChange}>
+            <option value="">All statuses</option>
+            <option value="Not Found">Not Found</option>
+            <option value="Found">Found</option>
+            <option value="Claimed">Claimed</option>
+          </select>
 
-        <input
-          type="date"
-          name="date"
-          value={filters.date}
-          onChange={handleChange}
-        />
+          <input
+            type="date"
+            name="date"
+            value={filters.date}
+            onChange={handleChange}
+          />
 
-        <div style={{ display: "flex", gap: "0.75rem" }}>
-          <button type="submit">Search</button>
-          <button type="button" onClick={handleReset}>
-            Reset
-          </button>
-        </div>
-      </form>
+          <div className="search-buttons">
+            <button type="submit">Search</button>
+            <button type="button" onClick={handleReset}>
+              Reset
+            </button>
+          </div>
+        </form>
 
-      {loading && <p>Loading results...</p>}
-      {error && <p style={{ color: "#000000", fontWeight: "bold" }}>{error}</p>}
+        {loading && <p>Loading...</p>}
+        {error && <p className="search-error">{error}</p>}
 
-      {!loading && !error && (
-        <div style={{ display: "grid", gap: "1rem" }}>
+        <div className="search-results">
           {items.length === 0 ? (
             <p>No items found.</p>
           ) : (
             items.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "12px",
-                  padding: "1rem",
-                  background: "#fff",
-                  color: "#222",
-                }}
-              >
-                <h3 style={{ marginTop: 0 }}>{item.name || "Unnamed Item"}</h3>
-                <p>
-                  <strong>Description:</strong> {item.description || "N/A"}
-                </p>
-                <p>
-                  <strong>Category:</strong> {item.category || "N/A"}
-                </p>
-                <p>
-                  <strong>Color:</strong> {item.color || "N/A"}
-                </p>
-                <p>
-                  <strong>Location:</strong> {item.location || "N/A"}
-                </p>
-                <p>
-                  <strong>Room:</strong> {item.room_num || "N/A"}
-                </p>
-                <p>
-                  <strong>Status:</strong> {item.status || "N/A"}
-                </p>
-                <p>
-                  <strong>Date:</strong> {formatReportedDate(item.reportedAt)}
-                </p>
+              <div key={item.id} className="search-card">
+                <h3>{item.name}</h3>
+                <p>{item.description}</p>
+                <p><strong>Location:</strong> {item.location}</p>
+                <p><strong>Category:</strong> {item.category}</p>
+                <p><strong>Color:</strong> {item.color}</p>
+                <p><strong>Status:</strong> {item.status}</p>
               </div>
             ))
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
