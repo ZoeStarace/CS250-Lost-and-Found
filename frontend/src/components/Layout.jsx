@@ -49,6 +49,15 @@ export default function Layout({ children }) {
           </Link>
         )}
 
+          {loginState && (
+              <Link
+                  to="/chat"
+                  style={{ textDecoration: "none", color: "#1f1f1f" }}
+              >
+                  Chat
+              </Link>
+          )}
+
         <div style={{ marginLeft: "auto" }}></div>
 
         {loginState ? (
