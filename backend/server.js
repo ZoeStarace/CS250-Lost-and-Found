@@ -8,7 +8,7 @@ import { createRequire } from "module";
 import { FieldValue } from "firebase-admin/firestore";
 
 const require = createRequire(import.meta.url);
-const credentials = require("./serviceAccountKey.json");
+const credentials = require("./key.json");
 dotenv.config();
 
 const app = express();
@@ -20,6 +20,37 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const auth = admin.auth();
+
+const verifyAuth = async (req, res, next) => {
+  const bearerToken = req.headers.authorization;
+
+  if (!bearerToken || !bearerToken.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const idToken = bearerToken.split(" ")[1];
+
+  try {
+    const decodedToken = await auth.verifyIdToken(idToken);
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    console.log("Error verifying ID token: ", error);
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
+const verifyAdmin = async (req, res, next) => {
+  try {
+    if (!req.user || req.user.admin !== true) {
+      return res.status(403).json({ message: "No access, admins only." });
+    }
+    next();
+  } catch (error) {
+    console.log("Error checking admin role:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 
 app.use(cors());
 app.use(express.json());
@@ -182,6 +213,47 @@ app.get("/api/search", async (req, res) => {
     console.log("Error message:", error.message);
     console.log("Error stack:", error.stack);
     res.status(500).json({ message: "Search failed", error: error.message });
+  }
+});
+
+app.get("/api/admin/users", verifyAuth, verifyAdmin, async (req, res) => {
+  try {
+    const snapshot = await db.collection("users").get();
+    const users = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    res.status(200).json(users);
+  } catch (error) {
+    console.log("Error fetching users:", error);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+});
+
+app.patch("/api/admin/items/:id/status", verifyAuth, verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    await db.collection("items").doc(id).update({
+      status,
+    });
+
+    res.status(200).json({ message: "Item status updated successfully" });
+  } catch (error) {
+    console.log("Error updating item status:", error);
+    res.status(500).json({ message: "Failed to update item status" });
+  }
+});
+
+app.delete("/api/admin/items/:id", verifyAuth, verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.collection("items").doc(id).delete();
+    res.status(200).json({ message: "Item deleted successfully" });
+  } catch (error) {
+    console.log("Error deleting item:", error);
+    res.status(500).json({ message: "Failed to delete item" });
   }
 });
 
