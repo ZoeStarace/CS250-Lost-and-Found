@@ -5,6 +5,7 @@ import Search from "./pages/Search";
 import Report from "./pages/Report";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Chat from "./pages/Chat";
 import { useState, useEffect } from "react";
 import { UserContext } from "./userState";
 import { onAuthStateChanged } from "firebase/auth";
@@ -42,6 +43,10 @@ export default function App() {
           <Route
             path="/login"
             element={loginState ? <Navigate to="/" /> : <Login />}
+          />
+          <Route
+              path="/chat"
+              element={loginState ? <Chat /> : <Navigate to="/login" />}
           />
         </Routes>
       </Layout>

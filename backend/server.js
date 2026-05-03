@@ -257,6 +257,42 @@ app.delete("/api/admin/items/:id", verifyAuth, verifyAdmin, async (req, res) => 
   }
 });
 
+app.get("/api/chat", verifyAuth, async (req, res) => {
+    try {
+        const snapshot = await db.collection("chat").orderBy("sentAt", "asc").get();
+        const messages = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        return res.status(200).json(messages);
+    } catch (error) {
+        console.log("Error fetching chat messages:", error);
+        return res.status(500).json({ message: "Failed to fetch messages" });
+    }
+});
+
+app.post("/api/chat", verifyAuth, async (req, res) => {
+    const text = (req.body.text || "").trim();
+    if (!text || text.length > 500) {
+        return res.status(400).json({ message: "Invalid message" });
+    }
+    try {
+        const userDoc = await db.collection("users").doc(req.user.uid).get();
+        const userData = userDoc.exists ? userDoc.data() : {};
+        const displayName = userData.firstName
+            ? `${userData.firstName} ${userData.lastName || ""}`.trim()
+            : req.user.email || "Anonymous";
+
+        await db.collection("chat").add({
+            uid: req.user.uid,
+            displayName,
+            text,
+            sentAt: Date.now(),
+        });
+        return res.status(200).json({ message: "Message sent" });
+    } catch (error) {
+        console.log("Error sending chat message:", error);
+        return res.status(500).json({ message: "Failed to send message" });
+    }
+});
+
 app.use(express.static(path.join(__dirname, "../dist")));
 
 app.use((req, res) => {
