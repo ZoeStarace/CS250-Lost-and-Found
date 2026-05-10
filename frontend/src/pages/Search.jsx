@@ -1,6 +1,22 @@
 import "./Search.css";
 import { useEffect, useMemo, useState } from "react";
-import {getIsAdmin, updateItemStatus, deleteItemAdmin, updateOwnItemStatus, deleteOwnItem, clientAuth} from "../firebase";
+import { getIsAdmin, updateItemStatus, deleteItemAdmin } from "../firebase";
+
+function highlight(text, query) {
+  if (!query) return text;
+
+  const regex = new RegExp(`(${query})`, "gi");
+
+  return text.split(regex).map((part, i) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <span key={i} style={{ backgroundColor: "yellow" }}>
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+}
 
 export default function Search() {
   const [filters, setFilters] = useState({
@@ -16,7 +32,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [currentUid, setCurrentUid] = useState(null);
+  const [sortOrder, setSortOrder] = useState("newest");
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -49,9 +65,7 @@ export default function Search() {
 
   useEffect(() => {
     fetchItems();
-    if (clientAuth.currentUser) {
-      setCurrentUid(clientAuth.currentUser.uid);
-    }
+
     async function checkAdmin() {
       try {
         const admin = await getIsAdmin();
@@ -110,33 +124,20 @@ export default function Search() {
     }
   }
 
-async function handleToggleOwnStatus(item) {
-  try {
-    const newStatus = item.status === "Found"
-      ? "Not Found"
-      : "Found";
-    await updateOwnItemStatus(item.id, newStatus);
-    fetchItems();
-  } catch (err) {
-    console.log("Error updating item:", err);
-    alert("Failed to update item.");
-  }
-}
-
-async function handleDeleteOwnItem(itemId) {
-  try {
-    await deleteOwnItem(itemId);
-    fetchItems();
-  } catch (err) {
-    console.log("Error deleting item:", err);
-    alert("Failed to delete item.");
-  }
-}
-
   function formatReportedDate(timestamp) {
     if (!timestamp) return "N/A";
     return new Date(timestamp).toLocaleDateString();
   }
+  const sortedItems = [...items].sort((a, b) => {
+  const dateA = a.reportedAt || 0;
+  const dateB = b.reportedAt || 0;
+
+  if (sortOrder === "newest") {
+    return dateB - dateA;
+  }
+
+  return dateA - dateB;
+});
 
   return (
       <div className="search-container">
@@ -202,17 +203,30 @@ async function handleDeleteOwnItem(itemId) {
           {loading && <p>Loading...</p>}
           {error && <p className="search-error">{error}</p>}
 
+          <div style={{ marginTop: "20px", marginBottom: "12px" }}>
+  <label style={{ marginRight: "8px", fontWeight: "600" }}>
+    Sort by date:
+  </label>
+
+  <select
+    value={sortOrder}
+    onChange={(e) => setSortOrder(e.target.value)}
+  >
+    <option value="newest">Newest first</option>
+    <option value="oldest">Oldest first</option>
+  </select>
+</div>
           <div className="search-results">
-            {items.length === 0 ? (
+            {sortedItems.length === 0 ?(
                 <p>No items found.</p>
             ) : (
-                items.map((item) => (
+                sortedItems.map((item) => (
                     <div key={item.id} className="search-card">
-                      <h3>{item.name}</h3>
-                      <p>{item.description}</p>
-                      <p><strong>Location:</strong> {item.location}</p>
-                      <p><strong>Category:</strong> {item.category}</p>
-                      <p><strong>Color:</strong> {item.color}</p>
+                     <h3>{highlight(item.name, filters.q)}</h3>
+<p>{highlight(item.description, filters.q)}</p>
+<p><strong>Location:</strong> {highlight(item.location, filters.q)}</p>
+<p><strong>Category:</strong> {highlight(item.category, filters.q)}</p>
+<p><strong>Color:</strong> {highlight(item.color, filters.q)}</p>
                       <p><strong>Status:</strong> {item.status}</p>
                       <p><strong>Reported:</strong> {formatReportedDate(item.reportedAt)}</p>
 
@@ -226,24 +240,6 @@ async function handleDeleteOwnItem(itemId) {
                             </button>
                           </div>
                       )}
-                  {currentUid === item.uid && (
-                                      <div className="search-buttons">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleToggleOwnStatus(item)}
-                                        >
-                                          {item.status === "Found"
-                                            ? "Mark Not Found"
-                                            : "Mark Found"}
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleDeleteOwnItem(item.id)}
-                                        >
-                                          Delete My Item
-                                        </button>
-                                      </div>
-                                    )}
                     </div>
                 ))
             )}

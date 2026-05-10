@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../userState.jsx";
 import { clientAuth, signout } from "../firebase";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 export default function Layout({ children }) {
   const { loginState } = useContext(UserContext);
