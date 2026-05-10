@@ -257,6 +257,60 @@ app.delete("/api/admin/items/:id", verifyAuth, verifyAdmin, async (req, res) => 
   }
 });
 
+app.patch("/api/user/items/:id/status", verifyAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!["Found", "Not Found"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    const itemRef = db.collection("items").doc(id);
+    const itemDoc = await itemRef.get();
+    if (!itemDoc.exists) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+    const itemData = itemDoc.data();
+    if (itemData.uid !== req.user.uid) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    await itemRef.update({
+      status,
+    });
+    return res.status(200).json({
+      message: "Item status updated successfully",
+    });
+  } catch (error) {
+    console.log("Error updating user item status:", error);
+    return res.status(500).json({
+      message: "Failed to update item status",
+    });
+  }
+});
+
+app.delete("/api/user/items/:id", verifyAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const itemRef = db.collection("items").doc(id);
+    const itemDoc = await itemRef.get();
+    if (!itemDoc.exists) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+    const itemData = itemDoc.data();
+    if (itemData.uid !== req.user.uid) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    await itemRef.delete();
+    return res.status(200).json({
+      message: "Item deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error deleting user item:", error);
+    return res.status(500).json({
+      message: "Failed to delete item",
+    });
+  }
+});
+
 app.get("/api/chat", verifyAuth, async (req, res) => {
     try {
         const snapshot = await db.collection("chat").orderBy("sentAt", "asc").get();

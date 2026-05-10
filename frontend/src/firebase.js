@@ -11,14 +11,21 @@ import {
 import axios from "axios";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA2r6o2gAvAFm8TgOayOV5Si5l2m6WnCoU",
-  authDomain: "appfor-39770.firebaseapp.com",
-  projectId: "appfor-39770",
-  storageBucket: "appfor-39770.firebasestorage.app",
-  messagingSenderId: "1020235379206",
-  appId: "1:1020235379206:web:efd4bdcee09d4725654987",
-  measurementId: "G-2JYS36H6RX"
+
+  apiKey: "AIzaSyCYItJC33gMoq2WD_X1CIqPa7gyGL5l8OU",
+
+  authDomain: "blah-74dfd.firebaseapp.com",
+
+  projectId: "blah-74dfd",
+
+  storageBucket: "blah-74dfd.firebasestorage.app",
+
+  messagingSenderId: "511742310779",
+
+  appId: "1:511742310779:web:366a7d791b3a2cc27de5de"
+
 };
+
 
 const webApp = initializeApp(firebaseConfig);
 const clientDb = getFirestore(webApp);
@@ -141,6 +148,31 @@ async function deleteItemAdmin(itemId) {
   return response.data;
 }
 
+async function updateOwnItemStatus(itemId, status) {
+  const token = await clientAuth.currentUser.getIdToken();
+  const response = await axios.patch(
+    `/api/user/items/${itemId}/status`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+}
+
+async function deleteOwnItem(itemId) {
+  const token = await clientAuth.currentUser.getIdToken();
+  const response = await axios.delete(`/api/user/items/${itemId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
+
 async function getIsAdmin() {
   const tokenResult = await clientAuth.currentUser.getIdTokenResult();
   return tokenResult.claims.admin === true;
@@ -182,5 +214,7 @@ export {
   getAdminUsers,
   updateItemStatus,
   deleteItemAdmin,
+  updateOwnItemStatus,
+  deleteOwnItem,
   getIsAdmin,
 };
