@@ -217,7 +217,7 @@ export default function Search() {
   </select>
 </div>
           <div className="search-results">
-            {sortedItems.length === 0 ?(
+            {items.length === 0 ? (
                 <p>No items found.</p>
             ) : (
                 sortedItems.map((item) => (
