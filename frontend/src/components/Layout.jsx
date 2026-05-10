@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../userState.jsx";
-import { signout } from "../firebase.js";
+import { clientAuth, signout } from "../firebase";
 
 export default function Layout({ children }) {
   const { loginState } = useContext(UserContext);
@@ -59,6 +59,18 @@ export default function Layout({ children }) {
           )}
 
         <div style={{ marginLeft: "auto" }}></div>
+
+{loginState && clientAuth.currentUser && (
+  <span
+    style={{
+      marginRight: "16px",
+      fontWeight: "600",
+      color: "#a6192e",
+    }}
+  >
+    Welcome, {clientAuth.currentUser.email}
+  </span>
+)}
 
         {loginState ? (
           <button
