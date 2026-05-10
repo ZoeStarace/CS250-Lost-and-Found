@@ -70,7 +70,7 @@ export default function Layout({ children }) {
     }}
   >
     Welcome, {clientAuth.currentUser.email}
-  </span>
+  </span> 
 )}
 
         {loginState ? (
