@@ -12,17 +12,7 @@ import axios from "axios";
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyCYItJC33gMoq2WD_X1CIqPa7gyGL5l8OU",
-
-  authDomain: "blah-74dfd.firebaseapp.com",
-
-  projectId: "blah-74dfd",
-
-  storageBucket: "blah-74dfd.firebasestorage.app",
-
-  messagingSenderId: "511742310779",
-
-  appId: "1:511742310779:web:366a7d791b3a2cc27de5de"
+  //
 
 };
 

@@ -1,6 +1,6 @@
 import "./Search.css";
 import { useEffect, useMemo, useState } from "react";
-import { getIsAdmin, updateItemStatus, deleteItemAdmin } from "../firebase";
+import {getIsAdmin, updateItemStatus, deleteItemAdmin, updateOwnItemStatus, deleteOwnItem, clientAuth} from "../firebase";
 
 function highlight(text, query) {
   if (!query) return text;
@@ -32,6 +32,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUid, setCurrentUid] = useState(null);
   const [sortOrder, setSortOrder] = useState("newest");
 
   const queryString = useMemo(() => {
@@ -65,6 +66,9 @@ export default function Search() {
 
   useEffect(() => {
     fetchItems();
+    if (clientAuth.currentUser) {
+        setCurrentUid(clientAuth.currentUser.uid);
+    }
 
     async function checkAdmin() {
       try {
@@ -123,6 +127,29 @@ export default function Search() {
       alert("Failed to delete item.");
     }
   }
+
+async function handleToggleOwnStatus(item) {
+  try {
+    const newStatus = item.status === "Found"
+      ? "Not Found"
+      : "Found";
+    await updateOwnItemStatus(item.id, newStatus);
+    fetchItems();
+  } catch (err) {
+    console.log("Error updating item:", err);
+    alert("Failed to update item.");
+  }
+}
+
+async function handleDeleteOwnItem(itemId) {
+  try {
+    await deleteOwnItem(itemId);
+    fetchItems();
+  } catch (err) {
+    console.log("Error deleting item:", err);
+    alert("Failed to delete item.");
+  }
+}
 
   function formatReportedDate(timestamp) {
     if (!timestamp) return "N/A";
@@ -240,6 +267,25 @@ export default function Search() {
                             </button>
                           </div>
                       )}
+                  {currentUid === item.uid && (
+                    <div className="search-buttons">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleOwnStatus(item)}
+                      >
+                        {item.status === "Found"
+                          ? "Mark Not Found"
+                          : "Mark Found"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteOwnItem(item.id)}
+                      >
+                        Delete My Item
+                      </button>
+                    </div>
+                  )}
                     </div>
                 ))
             )}
